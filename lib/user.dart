@@ -1,12 +1,46 @@
 class Userauth {
-  final String id;
-  final String fullName;
-  final String email;
-  final String number;
-  final String country;
-  final DateTime dob;
-  final String gender;
-  Userauth({required this.id, required this.fullName, required this.email, required this.number,required this.country, required this.dob, required this.gender});
+  String id;
+  String fullName;
+  String email;
+  String number;
+  String country;
+  DateTime dob;
+  String gender;
+  get getId => this.id;
+
+  set setId(final id) => this.id = id;
+
+  get getFullName => this.fullName;
+
+  set setFullName(fullName) => this.fullName = fullName;
+
+  get getEmail => this.email;
+
+  set setEmail(email) => this.email = email;
+
+  get getNumber => this.number;
+
+  set setNumber(number) => this.number = number;
+
+  get getCountry => this.country;
+
+  set setCountry(country) => this.country = country;
+
+  get getDob => this.dob;
+
+  set setDob(dob) => this.dob = dob;
+
+  get getGender => this.gender;
+
+  set setGender(gender) => this.gender = gender;
+  Userauth(
+      {required this.id,
+      required this.fullName,
+      required this.email,
+      required this.number,
+      required this.country,
+      required this.dob,
+      required this.gender});
   Userauth.fromData(Map<String, dynamic> data)
       : id = data['id'],
         fullName = data['fullName'],
@@ -15,7 +49,7 @@ class Userauth {
         country = data['country'],
         dob = data['dob'],
         gender = data['gender'];
-   Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'fullName': fullName,

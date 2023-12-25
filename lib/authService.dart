@@ -4,10 +4,7 @@ import "package:flutter/material.dart";
 import 'package:firebase_database/firebase_database.dart';
 import 'package:ipadel3/user.dart';
 
-
-
 class AuthenticationService {
-
   Future signUpWithEmail({
     required User user,
     required String password,
@@ -15,7 +12,8 @@ class AuthenticationService {
     required String role,
   }) async {
     try {
-      var authResult = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      var authResult =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: user.email!,
         password: password,
       );
@@ -26,12 +24,15 @@ class AuthenticationService {
     }
   }
 }
+
 class FirestoreService {
   final CollectionReference _usersCollectionReference =
       FirebaseFirestore.instance.collection("users");
   Future createUser(User user) async {
     try {
-      await _usersCollectionReference.document(Userauth.id).setData(Userauth.toJson());
+      await _usersCollectionReference
+          .document(Userauth.getId)
+          .setData(Userauth.toJson());
     } catch (e) {
       return e;
     }
