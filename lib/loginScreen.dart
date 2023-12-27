@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'signup_screen.dart'; // Import your SignUpScreen widget
+import 'authService.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -9,8 +10,11 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool isRememberMe = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  AuthService authInstance = new AuthService();
 
-  Widget buildEmail() {
+  Widget buildEmail(TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -30,7 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))
               ]),
           height: 60,
-          child: const TextField(
+          child: TextField(
+            controller: controller,
             keyboardType: TextInputType.emailAddress,
             style: TextStyle(color: Colors.black87),
             decoration: InputDecoration(
@@ -48,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildPassword() {
+  Widget buildPassword(TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -68,7 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))
               ]),
           height: 60,
-          child: const TextField(
+          child: TextField(
+            controller: controller,
             obscureText: true,
             style: TextStyle(color: Colors.black87),
             decoration: InputDecoration(
@@ -140,7 +146,11 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () => print('Login Pressed'),
+        onPressed: () async {
+          var user = await authInstance.login(
+              _emailController.text, _passwordController.text);
+          print(user.getEmail);
+        },
         style: ElevatedButton.styleFrom(
           primary: Colors.white, // Background color
           onPrimary: Color(0xff5ac18e), // Text Color (Foreground color)
@@ -227,9 +237,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 50),
-                      buildEmail(),
+                      buildEmail(_emailController),
                       const SizedBox(height: 20),
-                      buildPassword(),
+                      buildPassword(_passwordController),
                       buildForgotPassBtn(),
                       buildRememberCb(),
                       buildLoginBtn(),

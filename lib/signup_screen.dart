@@ -5,7 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import 'package:firebase_database/firebase_database.dart';
-import 'package:ipadel3/user.dart';
+import 'package:ipadel3/userauth.dart';
+import 'authService.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override
@@ -13,7 +14,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _fnameController = TextEditingController();
+  final TextEditingController _lnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _mobileNumberController = TextEditingController();
@@ -21,6 +23,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _nationalityController = TextEditingController();
 
   String? _gender;
+  AuthService authInstance = new AuthService();
 
   Widget buildTextField(String label, TextEditingController controller,
       {bool isPassword = false}) {
@@ -95,7 +98,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           padding: EdgeInsets.all(16),
           child: Column(
             children: <Widget>[
-              buildTextField('Name', _nameController),
+              buildTextField('First Name', _fnameController),
+              buildTextField('Last Name', _lnameController),
               buildTextField('Email', _emailController),
               buildTextField('Password', _passwordController, isPassword: true),
               buildTextField('Mobile Number', _mobileNumberController),
@@ -107,10 +111,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ElevatedButton(
                 child: Text('Sign Up'),
                 onPressed: () {
-                  register(
+                  authInstance.register(
                       _emailController.text,
                       _passwordController.text,
-                      _nameController.text,
+                      _fnameController.text,
+                      _lnameController.text,
                       _birthdayController.text,
                       _mobileNumberController.text,
                       _nationalityController.text,
@@ -126,39 +131,5 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> register(String email, String password, String name, String dob,
-      String number, String country, String gender) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
-      CollectionReference _usersCollectionReference =
-          FirebaseFirestore.instance.collection("users");
-
-      final FirebaseAuth auth = FirebaseAuth.instance;
-      await auth.signInWithEmailAndPassword(email: email, password: password);
-      final User? user = auth.currentUser;
-      String uid = user!.uid;
-      print(uid + "hehe");
-      ;
-      await _usersCollectionReference.doc(uid).set({
-        'Name': name,
-        'Email': email,
-        'Date of Birth': dob,
-        'Mobile Number': number,
-        'Nationality': country,
-        'Gender': gender,
-        'uid': uid
-      });
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-    } catch (e) {
-      print(e);
-    }
   }
 }
