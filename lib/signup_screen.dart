@@ -320,7 +320,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _emailErrorText = 'Email is required';
       });
-    } else if (!isEmailValid(value)) {
+    } else if (!isTextValid(value, emailValid)) {
       setState(() {
         _emailErrorText = 'Enter a valid email address';
       });
@@ -336,7 +336,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _textErrorText = 'This Field is required';
       });
-    } else if (!isTextValid(value)) {
+    } else if (!isTextValid(value, nameValid)) {
       setState(() {
         _textErrorText = 'Enter valid data';
       });
@@ -352,9 +352,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _lnameErrorText = 'This Field is required';
       });
-    } else if (!isTextValid(value)) {
+    } else if (!isTextValid(value, nameValid)) {
       setState(() {
-        _lnameErrorText = 'Enter valid data';
+        _lnameErrorText = 'Enter valid Last Name';
       });
     } else {
       setState(() {
@@ -368,9 +368,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _fnameErrorText = 'This Field is required';
       });
-    } else if (!isTextValid(value)) {
+    } else if (!isTextValid(value, nameValid)) {
       setState(() {
-        _fnameErrorText = 'Enter valid data';
+        _fnameErrorText = 'Enter valid First Name';
       });
     } else {
       setState(() {
@@ -384,7 +384,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _numErrorText = 'This Field is required';
       });
-    } else if (!isNumberValid(value)) {
+    } else if (!isTextValid(value, numValid)) {
       setState(() {
         _numErrorText = 'Enter a valid Number';
       });
@@ -400,7 +400,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _passErrorText = 'This Field is required';
       });
-    } else if (!isNumberValid(value)) {
+    } else if (!isTextValid(value, passValid)) {
       setState(() {
         _passErrorText = 'Enter a valid Number';
       });
@@ -411,29 +411,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  bool isEmailValid(String email) {
-    // Basic email validation using regex
+  bool isTextValid(String text, String valid) {
+    // Basic validation using regex
     // You can implement more complex validation if needed
-    return RegExp(r'^[\w-\.]+@[a-zA-Z]+\.[a-zA-Z]{2,}$').hasMatch(email);
+    return RegExp(valid).hasMatch(text);
   }
 
-  bool isTextValid(String text) {
-    // Basic email validation using regex
-    // You can implement more complex validation if needed
-    return RegExp('[a-zA-Z]').hasMatch(text);
-  }
-
-  bool isNumberValid(String text) {
-    // Basic email validation using regex
-    // You can implement more complex validation if needed
-    return RegExp(r'\d').hasMatch(text);
-  }
-
-  bool isPassValid(String text) {
-    // Basic email validation using regex
-    // You can implement more complex validation if needed
-    return RegExp(
-            r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
-        .hasMatch(text);
-  }
+  String nameValid = r'^[a-z]+$';
+  String numValid = r'\d';
+  String passValid =
+      r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
+  String emailValid = r'^[\w-\.]+@[a-zA-Z]+\.[a-zA-Z]{2,}$';
 }
