@@ -21,6 +21,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _mobileNumberController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _nationalityController = TextEditingController();
+  String? _emailErrorText;
+  String? _textErrorText;
+  String? _numErrorText;
+  String? _passErrorText;
+  String? _fnameErrorText;
+  String? _lnameErrorText;
 
   String? _gender;
   AuthService authInstance = new AuthService();
@@ -35,7 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: isPassword,
           decoration: InputDecoration(
@@ -43,7 +49,150 @@ class _SignUpScreenState extends State<SignUpScreen> {
             hintText: label,
             fillColor: Colors.white,
             filled: true,
+            errorText: _textErrorText,
           ),
+          validator: (value) => _textErrorText,
+          onChanged: _validateText,
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget buildLnameField(String label, TextEditingController controller,
+      {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: label,
+            fillColor: Colors.white,
+            filled: true,
+            errorText: _lnameErrorText,
+          ),
+          validator: (value) => _lnameErrorText,
+          onChanged: _validateLname,
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget buildFnameField(String label, TextEditingController controller,
+      {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: label,
+            fillColor: Colors.white,
+            filled: true,
+            errorText: _fnameErrorText,
+          ),
+          validator: (value) => _fnameErrorText,
+          onChanged: _validateFname,
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget buildNumberField(String label, TextEditingController controller,
+      {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: label,
+            fillColor: Colors.white,
+            filled: true,
+            errorText: _numErrorText,
+          ),
+          validator: (value) => _numErrorText,
+          onChanged: _validateNumber,
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget buildPasswordField(String label, TextEditingController controller,
+      {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: label,
+            fillColor: Colors.white,
+            filled: true,
+            errorText: _passErrorText,
+          ),
+          validator: (value) => _passErrorText,
+          onChanged: _validatePassword,
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget buildEmailTextField(String label, TextEditingController controller,
+      {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: _emailController,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: label,
+            fillColor: Colors.white,
+            filled: true,
+            errorText: _emailErrorText,
+          ),
+          validator: (value) => _emailErrorText,
+          onChanged: _validateEmail,
         ),
         SizedBox(height: 20),
       ],
@@ -73,6 +222,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+  DateTime selectedDate = DateTime.now();
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(1915, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,12 +261,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
           padding: EdgeInsets.all(16),
           child: Column(
             children: <Widget>[
-              buildTextField('First Name', _fnameController),
-              buildTextField('Last Name', _lnameController),
-              buildTextField('Email', _emailController),
-              buildTextField('Password', _passwordController, isPassword: true),
-              buildTextField('Mobile Number', _mobileNumberController),
-              buildTextField('Birthday (YYYY-MM-DD)', _birthdayController),
+              buildFnameField('First Name', _fnameController),
+              buildLnameField('Last Name', _lnameController),
+              buildEmailTextField('Email', _emailController),
+              buildPasswordField('Password', _passwordController,
+                  isPassword: true),
+              buildNumberField('Mobile Number', _mobileNumberController),
+              //buildTextField('Birthday (YYYY-MM-DD)', _birthdayController),
+              Align(
+                  alignment: Alignment.topLeft,
+                  child: Text("Birthday:",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ))),
+
+              ElevatedButton(
+                onPressed: () => _selectDate(context),
+                child: const Text('Select date'),
+              ),
+              Text("${selectedDate.toLocal()}".split(' ')[0],
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+              const SizedBox(
+                height: 20.0,
+              ),
               buildTextField('Nationality', _nationalityController),
               SizedBox(height: 20),
               buildGenderDropdown(),
@@ -116,7 +298,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       _passwordController.text,
                       _fnameController.text,
                       _lnameController.text,
-                      _birthdayController.text,
+                      selectedDate.toString(),
                       _mobileNumberController.text,
                       _nationalityController.text,
                       _gender!);
@@ -131,5 +313,127 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  void _validateEmail(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _emailErrorText = 'Email is required';
+      });
+    } else if (!isEmailValid(value)) {
+      setState(() {
+        _emailErrorText = 'Enter a valid email address';
+      });
+    } else {
+      setState(() {
+        _emailErrorText = null;
+      });
+    }
+  }
+
+  void _validateText(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _textErrorText = 'This Field is required';
+      });
+    } else if (!isTextValid(value)) {
+      setState(() {
+        _textErrorText = 'Enter valid data';
+      });
+    } else {
+      setState(() {
+        _textErrorText = null;
+      });
+    }
+  }
+
+  void _validateLname(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _lnameErrorText = 'This Field is required';
+      });
+    } else if (!isTextValid(value)) {
+      setState(() {
+        _lnameErrorText = 'Enter valid data';
+      });
+    } else {
+      setState(() {
+        _lnameErrorText = null;
+      });
+    }
+  }
+
+  void _validateFname(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _fnameErrorText = 'This Field is required';
+      });
+    } else if (!isTextValid(value)) {
+      setState(() {
+        _fnameErrorText = 'Enter valid data';
+      });
+    } else {
+      setState(() {
+        _fnameErrorText = null;
+      });
+    }
+  }
+
+  void _validateNumber(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _numErrorText = 'This Field is required';
+      });
+    } else if (!isNumberValid(value)) {
+      setState(() {
+        _numErrorText = 'Enter a valid Number';
+      });
+    } else {
+      setState(() {
+        _numErrorText = null;
+      });
+    }
+  }
+
+  void _validatePassword(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        _passErrorText = 'This Field is required';
+      });
+    } else if (!isNumberValid(value)) {
+      setState(() {
+        _passErrorText = 'Enter a valid Number';
+      });
+    } else {
+      setState(() {
+        _passErrorText = null;
+      });
+    }
+  }
+
+  bool isEmailValid(String email) {
+    // Basic email validation using regex
+    // You can implement more complex validation if needed
+    return RegExp(r'^[\w-\.]+@[a-zA-Z]+\.[a-zA-Z]{2,}$').hasMatch(email);
+  }
+
+  bool isTextValid(String text) {
+    // Basic email validation using regex
+    // You can implement more complex validation if needed
+    return RegExp('[a-zA-Z]').hasMatch(text);
+  }
+
+  bool isNumberValid(String text) {
+    // Basic email validation using regex
+    // You can implement more complex validation if needed
+    return RegExp(r'\d').hasMatch(text);
+  }
+
+  bool isPassValid(String text) {
+    // Basic email validation using regex
+    // You can implement more complex validation if needed
+    return RegExp(
+            r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+        .hasMatch(text);
   }
 }
