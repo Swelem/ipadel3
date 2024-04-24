@@ -152,8 +152,8 @@ class _LoginScreenState extends State<LoginScreen> {
           print(user.getEmail);
         },
         style: ElevatedButton.styleFrom(
-          primary: Colors.white, // Background color
-          onPrimary: Color(0xff5ac18e), // Text Color (Foreground color)
+          foregroundColor: Color(0xff5ac18e),
+          backgroundColor: Colors.white, // Text Color (Foreground color)
           padding: const EdgeInsets.all(15),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),

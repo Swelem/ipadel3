@@ -304,8 +304,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       _gender!);
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.white, // Button background color
-                  onPrimary: Colors.black, // Button text color
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white, // Button text color
                 ),
               ),
             ],

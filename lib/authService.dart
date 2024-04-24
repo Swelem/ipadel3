@@ -61,7 +61,7 @@ class AuthService {
       if (documentSnapshot.exists) {
         user = Userauth.fromJson(documentSnapshot.data() ?? {});
       }
-      return user;
+      return result.user;
     } on FirebaseAuthException catch (exception, s) {
       debugPrint('$exception$s');
       switch ((exception).code) {
