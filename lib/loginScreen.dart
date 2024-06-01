@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'signup_screen.dart'; // Import your SignUpScreen widget
 import 'authService.dart';
+import 'homepage.dart';
 
 class LoginScreen extends StatefulWidget {
+  final user; // Add user field
+
+  LoginScreen({required this.user});
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _LoginScreenState createState() => _LoginScreenState(user: user);
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  var user; // Add user field
+
+  _LoginScreenState({required this.user});
   bool isRememberMe = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -141,15 +148,57 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // Widget buildLoginBtn() {
+  //   return Container(
+  //     padding: const EdgeInsets.symmetric(vertical: 25),
+  //     width: double.infinity,
+  //     child: ElevatedButton(
+  //       onPressed: () async {
+  //         var user = await authInstance.login(
+  //             _emailController.text, _passwordController.text);
+  //         print(user.getEmail);
+  //       },
+  //       style: ElevatedButton.styleFrom(
+  //         foregroundColor: Color(0xff5ac18e),
+  //         backgroundColor: Colors.white, // Text Color (Foreground color)
+  //         padding: const EdgeInsets.all(15),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(15),
+  //         ),
+  //         elevation: 5,
+  //       ),
+  //       child: const Text(
+  //         'LOGIN',
+  //         style: TextStyle(
+  //           fontSize: 18,
+  //           fontWeight: FontWeight.bold,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
   Widget buildLoginBtn() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () async {
-          var user = await authInstance.login(
+          user = await authInstance.login(
               _emailController.text, _passwordController.text);
-          print(user.getEmail);
+          if (user != null) {
+            // Navigate to homepage if login is successful
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => homepage(user: user)),
+            );
+          } else {
+            // Show error message for unsuccessful login
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Login failed. Please check your credentials.'),
+              ),
+            );
+          }
         },
         style: ElevatedButton.styleFrom(
           foregroundColor: Color(0xff5ac18e),

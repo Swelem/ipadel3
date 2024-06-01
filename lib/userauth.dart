@@ -7,6 +7,7 @@ class Userauth {
   String country;
   String dob;
   String gender;
+  String username;
   get getId => this.id;
 
   set setId(final id) => this.id = id;
@@ -46,7 +47,8 @@ class Userauth {
       required this.number,
       required this.country,
       required this.dob,
-      required this.gender});
+      required this.gender,
+      required this.username});
   // factory Userauth.fromJson(Map<String, dynamic> parsedJson) {
   //   return Userauth(
   //       email: parsedJson['email'] ?? '',
@@ -69,7 +71,8 @@ class Userauth {
         number: parsedJson['number'] ?? '',
         country: parsedJson['nationality'] ?? '',
         dob: parsedJson['dob'] ?? '',
-        gender: parsedJson['gender'] ?? '');
+        gender: parsedJson['gender'] ?? '',
+        username: parsedJson['username'] ?? '');
   }
   // id = data['uid'],
   //   fName = data['First Name'],
@@ -89,6 +92,7 @@ class Userauth {
       'Country': country,
       'DOB': dob,
       'Gender': gender,
+      'Username': username,
     };
   }
 }

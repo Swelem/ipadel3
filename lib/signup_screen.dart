@@ -21,12 +21,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _mobileNumberController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _nationalityController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   String? _emailErrorText;
   String? _textErrorText;
   String? _numErrorText;
   String? _passErrorText;
   String? _fnameErrorText;
   String? _lnameErrorText;
+  String? _usernameErrorText;
 
   String? _gender;
   AuthService authInstance = new AuthService();
@@ -108,6 +110,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
             errorText: _fnameErrorText,
           ),
           validator: (value) => _fnameErrorText,
+          onChanged: _validateFname,
+        ),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget buildUsernameField(String label, TextEditingController controller,
+      {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          label,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: label,
+            fillColor: Colors.white,
+            filled: true,
+            errorText: _usernameErrorText,
+          ),
+          validator: (value) => _usernameErrorText,
           onChanged: _validateFname,
         ),
         SizedBox(height: 20),
@@ -264,6 +294,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               buildFnameField('First Name', _fnameController),
               buildLnameField('Last Name', _lnameController),
               buildEmailTextField('Email', _emailController),
+              buildUsernameField('Username:', _usernameController),
               buildPasswordField('Password', _passwordController,
                   isPassword: true),
               buildNumberField('Mobile Number', _mobileNumberController),
@@ -293,15 +324,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ElevatedButton(
                 child: Text('Sign Up'),
                 onPressed: () {
-                  authInstance.register(
-                      _emailController.text,
-                      _passwordController.text,
-                      _fnameController.text,
-                      _lnameController.text,
-                      selectedDate.toString(),
-                      _mobileNumberController.text,
-                      _nationalityController.text,
-                      _gender!);
+                  //   authInstance.register(
+                  //       _emailController.text,
+                  //       _passwordController.text,
+                  //       _fnameController.text,
+                  //       _lnameController.text,
+                  //       selectedDate.toString(),
+                  //       _mobileNumberController.text,
+                  //       _nationalityController.text,
+                  //       _gender!,
+                  //       _usernameController.text);
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.black,

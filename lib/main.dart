@@ -4,33 +4,47 @@ import 'signup_screen.dart'; // Import the SignUpScreen widget
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-void main() {
-  runApp(MyApp());
-  
-  
-}
+// void main() {
+//   runApp(MyApp());
+// }
 
+// class MyApp extends StatelessWidget {
+//   var user;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     future:
+//     Firebase.initializeApp();
+//     return MaterialApp(
+//       title: 'Flutter Login UI',
+//       debugShowCheckedModeBanner: false,
+//       home: LoginScreen(user: user),
+//       routes: {
+//         '/signup': (context) =>
+//             SignUpScreen(), // Define the route for the sign-up screen
+//       },
+//     );
+//   }
+// }
+import 'package:flutter/material.dart';
+import '/splash_screen/splash_screen.dart';
+import 'package:get/get.dart';
+
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    future : Firebase.initializeApp();
-    return MaterialApp(
-      title: 'Flutter Login UI',
+    future:
+    Firebase.initializeApp();
+    return const GetMaterialApp(
+      title: 'iPadel',
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
-      routes: {
-        '/signup': (context) =>
-            SignUpScreen(), // Define the route for the sign-up screen
-      },
-      
+      home: Scaffold(
+        body: SplashScreen(),
+      ),
     );
   }
 }
-
-
-
-
-
-

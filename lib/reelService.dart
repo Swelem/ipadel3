@@ -2,7 +2,8 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:ipadel3/main.dart';
 import 'package:path/path.dart' as Path;
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/firebase_database.dart' as db;
 import 'authService.dart';
 import 'package:camera/camera.dart'; // For accessing the device camera
 import 'package:image_picker/image_picker.dart'; // For selecting images and videos from the gallery
@@ -18,14 +19,20 @@ import 'package:video_player/video_player.dart'; // For displaying video files
 //import 'package:flutter_ffmpeg/flutter_ffmpeg.dart'; // For executing FFmpeg commands
 
 // Upload reel video to Firebase Storage
-Future<String> uploadReel(String userId, String caption, String videoFilePath,
-    String title, String desc, List<String> tags) async {
+Future<String> uploadReel(
+    String userId,
+//String caption,
+    String videoFilePath,
+    String title,
+    String desc,
+    List<String> tags,
+    String username) async {
   // Upload video file
   String reelId = '$userId-${DateTime.now().millisecondsSinceEpoch}';
   Reference storageRef =
       FirebaseStorage.instance.ref().child('reels/$userId/$reelId.mp4');
   UploadTask uploadTask = storageRef.putFile(File(videoFilePath));
-  print('Uploading reel: $userId, $caption, $videoFilePath');
+  print('Uploading reel: $userId, $videoFilePath');
   // Get download URL after upload completes
   String videoUrl = await (await uploadTask).ref.getDownloadURL();
 
@@ -37,7 +44,8 @@ Future<String> uploadReel(String userId, String caption, String videoFilePath,
     'commentCount': 0,
     'title': title,
     'description': desc,
-    'tags': tags
+    'tags': tags,
+    'username': username
   });
   return reelId;
 }
@@ -49,6 +57,28 @@ Future<List<Map<String, dynamic>>> fetchReelsForUser(String userId) async {
       .orderBy('timestamp', descending: true)
       .limit(10)
       .get();
+
+  List<Map<String, dynamic>> reels = [];
+  for (var doc in querySnapshot.docs) {
+    reels.add(doc.data() as Map<String, dynamic>);
+  }
+
+  return reels;
+}
+
+Future<List<Map<String, dynamic>>> fetchPaginatedReelsForUser(
+    String userId, int pageSize,
+    {DocumentSnapshot? lastDocument}) async {
+  var query = FirebaseFirestore.instance
+      .collection('reelsMeta')
+      .orderBy('timestamp', descending: true)
+      .limit(pageSize);
+
+  if (lastDocument != null) {
+    query = query.startAfterDocument(lastDocument);
+  }
+
+  QuerySnapshot querySnapshot = await query.get();
 
   List<Map<String, dynamic>> reels = [];
   for (var doc in querySnapshot.docs) {
@@ -99,14 +129,16 @@ Future<void> toggleLikeReel(String reelId, String userId) async {
 }
 
 Future<void> addComment(
-    String reelId, String userId, String commentText) async {
+    String reelId, String userId, String commentText, String username) async {
   CollectionReference commentRef = FirebaseFirestore.instance
       .collection('reelsMeta')
       .doc(reelId)
       .collection('comments');
   await commentRef.add({
     'userId': userId,
+    'username': username,
     'commentText': commentText,
+    'likeCount': 0,
     'timestamp': FieldValue.serverTimestamp(),
   });
   String commentId = commentRef.id;
@@ -181,6 +213,17 @@ class PermissionRequestWidget extends StatelessWidget {
             AuthService authInstance = new AuthService();
             var user =
                 await authInstance.login("seifswelm@gmail.com", "seif2001");
+            var uid = user!.uid;
+            var querySnapshot = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(uid)
+                .get();
+            String username = querySnapshot.data()?['username'];
+
+            // Reference to Firestore collection
+            var usersCollection =
+                FirebaseFirestore.instance.collection('users');
+
             // Show options for capturing video from camera or selecting from gallery
             showDialog(
               context: context,
@@ -191,11 +234,12 @@ class PermissionRequestWidget extends StatelessWidget {
                   children: <Widget>[
                     ElevatedButton(
                       onPressed: () =>
-                          captureVideoFromCamera(context, user.uid),
+                          captureVideoFromCamera(context, user!.uid, username),
                       child: Text('Capture from Camera'),
                     ),
                     ElevatedButton(
-                      onPressed: () => selectVideoFromGallery(user.uid),
+                      onPressed: () =>
+                          selectVideoFromGallery(user!.uid, username),
                       child: Text('Select from Gallery'),
                     ),
                   ],
@@ -245,7 +289,8 @@ class PermissionRequestWidget extends StatelessWidget {
 //   }
 // }
 
-Future<void> captureVideoFromCamera(BuildContext context, String userId) async {
+Future<void> captureVideoFromCamera(
+    BuildContext context, String userId, String username) async {
   final User? user = FirebaseAuth.instance.currentUser;
   if (user == null) {
     print("User is not authenticated.");
@@ -288,13 +333,13 @@ Future<void> captureVideoFromCamera(BuildContext context, String userId) async {
                     String videoFilePath = videoFile.path;
                     String reelId = await uploadReel(
                         userId,
-                        "hi",
                         videoFilePath,
                         "the best reel22445555",
                         "I like this reel very much22445555",
-                        ["the", "best", "reel22445555"]);
+                        ["the", "best", "reel22445555"],
+                        username);
                     // Optionally, add a comment after uploading
-                    await addComment(reelId, userId, "HIIIIIIII44");
+                    await addComment(reelId, userId, "HIIIIIIII44", username);
                     // Dispose of the controller to free up resources
                     controller.dispose();
                     // Close the dialog
@@ -314,7 +359,7 @@ Future<void> captureVideoFromCamera(BuildContext context, String userId) async {
 }
 
 // Function to select video from gallery
-Future<void> selectVideoFromGallery(String userId) async {
+Future<void> selectVideoFromGallery(String userId, String username) async {
   final User? user = FirebaseAuth.instance.currentUser;
   if (user == null) {
     // Handle the case where the user is not authenticated
@@ -327,8 +372,8 @@ Future<void> selectVideoFromGallery(String userId) async {
   if (pickedFile != null) {
     File? galleryFile = File(pickedFile.path);
     String reelId;
-    reelId = await uploadReel(userId, "hi", pickedFile.path, "the best reel22",
-        "I like this reel very much22", ["the", "best", "reel22"]);
-    addComment(reelId, userId, "HIIIIIIII");
+    reelId = await uploadReel(userId, pickedFile.path, "Testing 1",
+        "I like this reel very much", ["First", "Real", "Reel"], username);
+    addComment(reelId, userId, "HIIIIIIII", username);
   }
 }
