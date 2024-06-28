@@ -36,6 +36,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? _errorMessage;
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
+  bool isLoading = false;
   @override
   void dispose() {
     _fnameController.dispose();
@@ -202,6 +203,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                                 return;
                               } else {
+                                setState(() {
+                                  isLoading = true; // Start loading
+                                });
                                 String? error = await authInstance.register(
                                   _emailController.text,
                                   _passwordController.text,
@@ -220,12 +224,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   );
                                   // Registration failed, show error message
                                 }
+                              setState(() {
+                                  isLoading = false; // Stop loading
+                                });
                               }
                             },
-                            child: Image.asset(
-                              "assets/images/signup.png",
-                              height: 60,
-                            ),
+                            child: isLoading
+                                ? Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : Image.asset(
+                                    "assets/images/signup.png",
+                                    height: 60,
+                                  ),
                           ),
                           //  ),
                           Padding(

@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 import '/core/app_colors.dart';
 
@@ -48,8 +51,8 @@ class _CorrectScreenState extends State<CorrectScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(
-      videoPath,
+    _controller = VideoPlayerController.file(
+      File(videoPath),
     )..setLooping(true);
     _initializeVideoPlayerFuture = _controller.initialize();
     _controller.play();
@@ -65,8 +68,8 @@ class _CorrectScreenState extends State<CorrectScreen> {
       _controller.pause();
       _controller.dispose();
       if (value == true) {
-        _controller = VideoPlayerController.network(
-          nextVideoPath,
+        _controller = VideoPlayerController.file(
+          File(nextVideoPath),
         )..setLooping(true);
       } else {
         _controller = VideoPlayerController.asset(
@@ -90,8 +93,22 @@ class _CorrectScreenState extends State<CorrectScreen> {
     //final double aspectRatio = 4 / 7;
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
-      appBar: AppBar(
-        leading: Container(),
+      // appBar: AppBar(
+      //   leading: Container(),
+      //   backgroundColor: AppColors.primaryColor,
+      //   elevation: 0,
+      // ),
+            appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color:
+           //AppColors.thirdColor
+           Colors.white
+           
+           ),
+          onPressed: () {
+            Get.back();
+          },
+        ),
         backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),

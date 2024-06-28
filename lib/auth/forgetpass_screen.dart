@@ -18,6 +18,7 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
   String? _emailErrorText;
   AuthService authInstance = AuthService();
   String? _errorMessage;
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -26,6 +27,9 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
   }
 
   Future<void> _resetPassword() async {
+    setState(() {
+      isLoading = true; // Start loading
+    });
     try {
       await authInstance.resetPassword(_emailController.text);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -41,7 +45,12 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
         ),
       );
     }
+    setState(() {
+      isLoading = false; // Stop loading
+    });
   }
+  
+  
 
   @override
   Widget build(BuildContext context) {
@@ -126,10 +135,14 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
                         onTap: () async {
                           await _resetPassword();
                         },
-                        child: Image.asset(
-                          "assets/images/submit.png",
-                          height: 60,
-                        ),
+                        child: isLoading
+                            ? Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : Image.asset(
+                                "assets/images/submit.png",
+                                height: 60,
+                              ),
                       ),
                       const SizedBox(height: 20),
                       Row(

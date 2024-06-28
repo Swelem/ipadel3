@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   var user;
   _LoginScreenState({required this.user});
   bool isRememberMe = false;
+  bool isLoading = false; 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   AuthService authInstance = new AuthService();
@@ -143,6 +144,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                         return;
                       }
+                      setState(() {
+                        isLoading = true; // Start loading
+                      });
 
                       user = await authInstance.login(
                           _emailController.text, _passwordController.text);
@@ -156,11 +160,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       }
+                    setState(() {
+                        isLoading = false; // Stop loading
+                      });
                     },
                     child: CircleAvatar(
                       backgroundColor: AppColors.secondColor,
                       radius: 40,
-                      child: Image.asset("assets/images/arrow.png", height: 78),
+                      child: isLoading
+                          ? CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white),
+                            )
+                          : Image.asset("assets/images/arrow.png", height: 78),
                     ),
                   ),
                 ),
