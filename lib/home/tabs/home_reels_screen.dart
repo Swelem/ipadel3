@@ -11,7 +11,8 @@ import '../../reels.dart';
 
 class HomeReelsScreen extends StatelessWidget {
   final user;
-  const HomeReelsScreen({required this.user});
+  HomeReelsScreen({required this.user});
+  String name = "user";
 
   Future<String> fetchUserData() async {
     try {
@@ -57,6 +58,7 @@ class HomeReelsScreen extends StatelessWidget {
                               fontSize: 24, fontWeight: FontWeight.bold),
                         );
                       } else if (snapshot.hasData) {
+                        name = snapshot.data!;
                         return Text(
                           "Hi, ${snapshot.data}",
                           style: TextStyle(

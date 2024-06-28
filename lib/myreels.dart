@@ -313,6 +313,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:video_player/video_player.dart';
 import 'reelService.dart'; // Import your reels service
+import '/upload_reels/upload_reels_screen.dart';
+import 'package:get/get.dart';
+import 'commentswidget.dart';
 
 class ReelsPage2 extends StatefulWidget {
   final User? user;
@@ -396,6 +399,7 @@ class _ReelsPageState2 extends State<ReelsPage2> {
               .map((doc) {
                 var data = doc.data() as Map<String, dynamic>?;
                 return {
+                  'reelId': doc.id,
                   'videoUrl': data?['videoUrl'] as String? ?? '',
                   'title': data?['title'] as String? ?? 'No title',
                   'description':
@@ -411,11 +415,12 @@ class _ReelsPageState2 extends State<ReelsPage2> {
             itemCount: reelsData.length,
             itemBuilder: (context, index) {
               return VideoPlayerWidget(
-                videoUrl: reelsData[index]['videoUrl']!,
-                title: reelsData[index]['title']!,
-                description: reelsData[index]['description']!,
-                username: reelsData[index]['username']!,
-              );
+                  reelid: reelsData[index]['reelId']!,
+                  videoUrl: reelsData[index]['videoUrl']!,
+                  title: reelsData[index]['title']!,
+                  description: reelsData[index]['description']!,
+                  username: reelsData[index]['username']!,
+                  user: user);
             },
           );
         },
@@ -425,32 +430,43 @@ class _ReelsPageState2 extends State<ReelsPage2> {
 }
 
 class VideoPlayerWidget extends StatefulWidget {
+  final String reelid;
   final String videoUrl;
   final String title;
   final String description;
   final String username;
+  final user;
 
   const VideoPlayerWidget({
     Key? key,
+    required this.reelid,
     required this.videoUrl,
     required this.title,
     required this.description,
     required this.username,
+    required this.user,
   }) : super(key: key);
 
   @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState(user: user);
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
+  final user;
+  int _likeCount = 0;
+  int _commentCount = 0;
+  _VideoPlayerWidgetState({required this.user});
   bool _isPlaying = false;
   bool _hasError = false;
-
+  bool _liked = false;
+  bool _showComments = false;
   @override
   void initState() {
     super.initState();
     _initializeVideoPlayer();
+    _checkIfLiked();
+    _fetchLikeCount();
   }
 
   void _initializeVideoPlayer() {
@@ -467,6 +483,35 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
         });
       });
     _controller.setLooping(true);
+  }
+
+  Future<void> _checkIfLiked() async {
+    // Check if the current user has already liked this video
+    if (widget.user != null) {
+      bool liked = await checkIfLiked(widget.reelid, widget.user!.uid);
+      setState(() {
+        _liked = liked;
+      });
+    }
+  }
+
+  Future<void> _toggleLike() async {
+    if (widget.user != null) {
+      await toggleLike(widget.reelid, widget.user!.uid);
+      _fetchLikeCount();
+      _checkIfLiked();
+      // setState(() {
+      //   _liked = !_liked; // Toggle the liked state
+      // });
+    }
+  }
+
+  Future<void> _fetchLikeCount() async {
+    // Fetch the current like count from Firestore
+    int likeCount = await fetchLikeCount(widget.reelid);
+    setState(() {
+      _likeCount = likeCount;
+    });
   }
 
   @override
@@ -519,31 +564,101 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.favorite_border, color: Colors.white),
+                        icon: Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
-                          // Handle like button press
+                          Get.back();
                         },
                       ),
-                      IconButton(
-                        icon: Icon(Icons.comment, color: Colors.white),
-                        onPressed: () {
-                          // Handle comment button press
-                        },
+                      // IconButton(
+                      //   icon: Icon(
+                      //     _liked ? Icons.favorite : Icons.favorite_border,
+                      //     color: _liked ? Colors.red : Colors.white,
+                      //   ),
+                      //   onPressed: () {
+                      //     _toggleLike();
+                      //   },
+                      // ),
+                      // Text(
+                      //   '$_likeCount',
+                      //   style: TextStyle(color: Colors.white),
+                      // ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              _liked ? Icons.favorite : Icons.favorite_border,
+                              color: _liked ? Colors.red : Colors.white,
+                            ),
+                            onPressed: () {
+                              _toggleLike();
+                            },
+                          ),
+                          SizedBox(
+                              height:
+                                  0), // Adjust spacing between icon and text
+                          Text(
+                            '$_likeCount',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: Icon(Icons.person, color: Colors.white),
-                        onPressed: () {
-                          // Handle person button press
-                        },
+                      // IconButton(
+                      //   icon: Icon(Icons.comment, color: Colors.white),
+                      //   onPressed: () {
+                      //     // Handle comment button press
+                      //   },
+                      // ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.comment,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                // _showComments = !_showComments;
+                              });
+                            },
+                          ),
+                          SizedBox(
+                              height:
+                                  0), // Adjust spacing between icon and text
+                          Text(
+                            '$_commentCount',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
                       IconButton(
                         icon: Icon(Icons.file_upload, color: Colors.white),
                         onPressed: () {
+                          Get.to(() => UploadReelsScreen(user: user));
                           // Handle send button press
                         },
                       ),
                     ],
                   ),
+                  // if (_showComments)
+                  //   Container(
+                  //     padding: EdgeInsets.symmetric(vertical: 8),
+                  //     child: Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           'Comments Section Placeholder',
+                  //           style: TextStyle(color: Colors.white),
+                  //         ),
+                  //         // Replace with your comments widget
+                  //         // Example:
+                  //         // CommentWidget(reelId: widget.reelid),
+                  //       ],
+                  //     ),
+                  //   ),
+                  if (_showComments)
+                    CommentsWidget(reelId: widget.reelid, user: widget.user),
                 ],
               ),
             ),

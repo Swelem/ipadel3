@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '/core/app_colors.dart';
 import '/auth/register_screen.dart';
 import '/home/home_screen.dart';
 import '../authService.dart';
 import 'package:get/get.dart';
+import 'forgetpass_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final user; // Add user field
@@ -20,6 +22,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   AuthService authInstance = new AuthService();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  bool isValidEmail(String email) {
+    final emailRegExp = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegExp.hasMatch(email);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +92,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefixIcon: Icon(Icons.person,
                               size: 35, color: AppColors.secondColor),
                         ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(
+                              RegExp(r'\s')), // Disallow spaces
+                        ],
                       ),
                     ),
                     Container(
@@ -114,19 +134,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   right: 70,
                   child: GestureDetector(
                     onTap: () async {
-                      //Get.off(() => HomeScreen());
+                      if (!isValidEmail(_emailController.text)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content:
+                                Text('Please enter a valid email address.'),
+                          ),
+                        );
+                        return;
+                      }
+
                       user = await authInstance.login(
                           _emailController.text, _passwordController.text);
                       if (user != null) {
-                        // Navigate to homepage if login is successful
-                        // Navigator.pushReplacement(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => HomeScreen(user: user)),
-                        // );
                         Get.offAll(() => HomeScreen(user: user));
                       } else {
-                        // Show error message for unsuccessful login
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -149,14 +171,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(25),
-                  child: Image.asset("assets/images/forget_password.png",
-                      width: 150),
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(() => ForgotPassScreen());
+                    },
+                    child: Image.asset("assets/images/forget_password.png",
+                        width: 150),
+                  ),
                 ),
               ],
             ),
             GestureDetector(
               onTap: () {
-                Get.off(() => RegisterScreen());
+                Get.to(() => RegisterScreen());
               },
               child: Container(
                 alignment: Alignment.center,

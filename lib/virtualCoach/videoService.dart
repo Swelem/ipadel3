@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _summary = '';
 
   Future<void> _summarizeVideo() async {
-    final url = Uri.parse('http://44.222.47.114/summarize-video');
+    final url = Uri.parse('http://44.222.47.114/smash-video');
 
     try {
       var request = http.MultipartRequest('POST', url);

@@ -1,19 +1,18 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import "../reelService.dart";
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '/core/app_colors.dart';
 import '/core/widgets/custom_text_field.dart';
 import 'package:wave_linear_progress_indicator/wave_linear_progress_indicator.dart';
+import '../reelService.dart'; // Import your reelService file
+import 'package:get/get.dart';
 
 File? _video;
-TextEditingController _titleController = TextEditingController();
-final TextEditingController _descController = TextEditingController();
-final TextEditingController _tagsController = TextEditingController();
 
 class UploadReelsScreen extends StatefulWidget {
   final user;
+
   const UploadReelsScreen({required this.user});
 
   @override
@@ -21,10 +20,29 @@ class UploadReelsScreen extends StatefulWidget {
 }
 
 class _UploadReelsScreenState extends State<UploadReelsScreen> {
+  TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _tagsController = TextEditingController();
   var user;
+  bool _isUploading = false; // Track upload state
+
   _UploadReelsScreenState({required this.user});
 
-  Future<void> _getVideo(ImageSource source) async {
+  @override
+  void initState() {
+    super.initState();
+    user = widget.user;
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descController.dispose();
+    _tagsController.dispose();
+    super.dispose();
+  }
+
+  Future<File?> _getVideo(ImageSource source) async {
     final pickedFile = await ImagePicker().pickVideo(source: source);
 
     setState(() {
@@ -35,25 +53,99 @@ class _UploadReelsScreenState extends State<UploadReelsScreen> {
         print('No video selected.');
       }
     });
+    return _video;
+  }
+
+  void _startUpload() async {
+    setState(() {
+      _isUploading = true; // Start uploading
+    });
+
+    if (_video != null) {
+      File? galleryFile = File(_video!.path);
+
+      var uid = user.uid;
+
+      var querySnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      String username = querySnapshot.data()?['username'];
+
+      try {
+        await uploadReel(
+          uid,
+          galleryFile.path,
+          _titleController.text,
+          _descController.text,
+          _tagsController.text.split(','), // Split tags into a list
+          username,
+        );
+
+        // Show success message or navigate to another screen upon successful upload
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Reel uploaded successfully!'),
+          ),
+        );
+      } catch (e) {
+        // Handle specific errors thrown by uploadReel function
+        String errorMessage = 'Failed to upload reel';
+        if (e is FirebaseException) {
+          // Handle Firebase-related errors
+          errorMessage = 'Firebase Error: ${e.message}';
+        } else if (e is FormatException) {
+          // Handle format-related errors
+          errorMessage = 'Invalid format: $e';
+        } else {
+          // Handle generic errors
+          errorMessage = 'Error: $e';
+        }
+
+        // Show error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+          ),
+        );
+      } finally {
+        setState(() {
+          _isUploading = false; // Finish uploading
+        });
+      }
+    } else {
+      // Show error message for no video selected
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No video selected.'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.primaryColor),
+          onPressed: () {
+            Get.back();
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.08),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Text(
-                "Hi, User",
+                "Upload Reel",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
-            const Divider(
+            Divider(
               color: AppColors.thirdColor,
               endIndent: 200,
             ),
@@ -69,28 +161,8 @@ class _UploadReelsScreenState extends State<UploadReelsScreen> {
                       controller: _tagsController, hintText: "Tags"),
                   GestureDetector(
                     onTap: () async {
-                      _getVideo(ImageSource.gallery);
-
-                      if (_video != null) {
-                        File? galleryFile = File(_video!.path);
-
-                        var uid = user.uid;
-                        print(uid + "hi");
-                        var querySnapshot = await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(uid)
-                            .get();
-                        String username = querySnapshot.data()?['username'];
-                        print(username + "hi");
-                        await uploadReel(
-                            user.uid,
-                            galleryFile.path,
-                            _titleController.text,
-                            _descController.text,
-                            _tagsController.text
-                                .split(','), // Split tags into a list
-                            username);
-                      }
+                      _video = await _getVideo(ImageSource.gallery) as File?;
+                      _startUpload();
                     },
                     child: Container(
                       height: 60, // Set a specific height for the container
@@ -100,17 +172,11 @@ class _UploadReelsScreenState extends State<UploadReelsScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 79),
-                  WaveLinearProgressIndicator(
-                    value: 0.1,
-                    enableBounceAnimation: true,
-                    waveColor: AppColors.primaryColor,
-                    color: AppColors.primaryColor,
-                    waveBackgroundColor:
-                        AppColors.primaryColor.withOpacity(0.1),
-                    backgroundColor: Colors.grey[150],
-                    minHeight: 20,
-                  ),
+                  SizedBox(height: 20), // Adjust spacing as needed
+                  if (_isUploading)
+                    Center(
+                      child: CircularProgressIndicator(),
+                    ),
                 ],
               ),
             ),

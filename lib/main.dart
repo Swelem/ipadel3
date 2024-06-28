@@ -3,6 +3,7 @@ import 'loginScreen.dart';
 import 'signup_screen.dart'; // Import the SignUpScreen widget
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter/services.dart';
 
 // void main() {
 //   runApp(MyApp());
@@ -30,7 +31,11 @@ import 'package:flutter/material.dart';
 import '/splash_screen/splash_screen.dart';
 import 'package:get/get.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

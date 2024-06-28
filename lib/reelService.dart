@@ -1,3 +1,4 @@
+//import 'dart:html';
 import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,10 +14,14 @@ import 'package:path/path.dart' as Path;
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart' as db;
 import 'authService.dart';
+import 'comment.dart';
 import 'package:camera/camera.dart'; // For accessing the device camera
 import 'package:image_picker/image_picker.dart'; // For selecting images and videos from the gallery
 import 'package:video_player/video_player.dart'; // For displaying video files
 //import 'package:flutter_ffmpeg/flutter_ffmpeg.dart'; // For executing FFmpeg commands
+import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 // Upload reel video to Firebase Storage
 Future<String> uploadReel(
@@ -26,28 +31,58 @@ Future<String> uploadReel(
     String title,
     String desc,
     List<String> tags,
-    String username) async {
-  // Upload video file
-  String reelId = '$userId-${DateTime.now().millisecondsSinceEpoch}';
-  Reference storageRef =
-      FirebaseStorage.instance.ref().child('reels/$userId/$reelId.mp4');
-  UploadTask uploadTask = storageRef.putFile(File(videoFilePath));
-  print('Uploading reel: $userId, $videoFilePath');
-  // Get download URL after upload completes
-  String videoUrl = await (await uploadTask).ref.getDownloadURL();
+    String username,
+    {int maxVideoLengthInSeconds = 15, // max length of video in seconds
+    int maxVideoSizeInBytes =
+        50 * 1024 * 1024} // max size of video in bytes (100 MB)
+    ) async {
+  // Validate video length and size
+  File videoFile = File(videoFilePath);
+  int videoFileSize = await videoFile.length();
+  VideoPlayerController videoController = VideoPlayerController.file(videoFile);
+  await videoController.initialize();
+  Duration videoDuration = videoController.value.duration;
 
-  await FirebaseFirestore.instance.collection('reelsMeta').doc(reelId).set({
-    'userId': userId,
-    'videoUrl': videoUrl,
-    'timestamp': FieldValue.serverTimestamp(),
-    'likeCount': 0,
-    'commentCount': 0,
-    'title': title,
-    'description': desc,
-    'tags': tags,
-    'username': username
-  });
-  return reelId;
+  if (videoDuration.inSeconds > maxVideoLengthInSeconds) {
+    throw Exception(
+        "Video length exceeds the maximum allowed duration of $maxVideoLengthInSeconds seconds.");
+  } else if (videoFileSize > maxVideoSizeInBytes) {
+    throw Exception(
+        "Video file size exceeds the maximum allowed size of ${maxVideoSizeInBytes / (1024 * 1024)} MB.");
+  } else {
+    // Upload video file
+    String reelId = '$userId-${DateTime.now().millisecondsSinceEpoch}';
+    Reference storageRef =
+        FirebaseStorage.instance.ref().child('reels/$userId/$reelId.mp4');
+    UploadTask uploadTask = storageRef.putFile(File(videoFilePath));
+    print('Uploading reel: $userId, $videoFilePath');
+    // Get download URL after upload completes
+    String videoUrl = await (await uploadTask).ref.getDownloadURL();
+    // Set metadata for the uploaded file
+    SettableMetadata metadata = SettableMetadata(customMetadata: {
+      'userId': userId,
+      'title': title,
+      'description': desc,
+      'tags': tags.join(','),
+      'username': username
+    });
+
+    // Update metadata for the uploaded file
+    await storageRef.updateMetadata(metadata);
+
+    await FirebaseFirestore.instance.collection('reelsMeta').doc(reelId).set({
+      'userId': userId,
+      'videoUrl': videoUrl,
+      'timestamp': FieldValue.serverTimestamp(),
+      'likeCount': 0,
+      'commentCount': 0,
+      'title': title,
+      'description': desc,
+      'tags': tags,
+      'username': username
+    });
+    return reelId;
+  }
 }
 
 Future<List<Map<String, dynamic>>> fetchReelsForUser(String userId) async {
@@ -104,44 +139,151 @@ Future<List<Map<String, dynamic>>> fetchAllReels() async {
   return reels;
 }
 
-Future<void> toggleLikeReel(String reelId, String userId) async {
-  DocumentReference reelRef =
-      FirebaseFirestore.instance.collection('allReels').doc(reelId);
+Future<int> fetchLikeCount(String reelId) async {
+  try {
+    DocumentSnapshot reelSnapshot = await FirebaseFirestore.instance
+        .collection('reelsMeta')
+        .doc(reelId)
+        .get();
 
-  // Check if the user has already liked the reel
-  DocumentSnapshot reelSnapshot = await reelRef.get();
-  Map<String, dynamic>? reelData = reelSnapshot.data() as Map<String, dynamic>;
-  List<String>? likes = reelData['likes'];
+    if (reelSnapshot.exists) {
+      Map<String, dynamic>? reelData =
+          reelSnapshot.data() as Map<String, dynamic>?;
 
-  if (likes != null && likes.contains(userId)) {
-    // If the user has liked the reel, unlike it
-    await reelRef.update({
-      'likeCount': FieldValue.increment(-1),
-      'likes': FieldValue.arrayRemove([userId]),
-    });
-  } else {
-    // If the user hasn't liked the reel, like it
-    await reelRef.update({
-      'likeCount': FieldValue.increment(1),
-      'likes': FieldValue.arrayUnion([userId]),
-    });
+      if (reelData != null && reelData.containsKey('likeCount')) {
+        return reelData['likeCount'];
+      }
+    }
+  } catch (e) {
+    print('Error fetching like count: $e');
+  }
+
+  return 0; // Default value if like count is not found or there's an error
+}
+
+Future<int> fetchCommentCount(String reelId) async {
+  try {
+    DocumentSnapshot reelSnapshot = await FirebaseFirestore.instance
+        .collection('reelsMeta')
+        .doc(reelId)
+        .get();
+
+    if (reelSnapshot.exists) {
+      Map<String, dynamic>? reelData =
+          reelSnapshot.data() as Map<String, dynamic>?;
+
+      if (reelData != null && reelData.containsKey('commentCount')) {
+        return reelData['commentCount'];
+      }
+    }
+  } catch (e) {
+    print('Error fetching comment count: $e');
+  }
+
+  return 0; // Default value if like count is not found or there's an error
+}
+
+// Future<void> toggleLikeReel(String reelId, String userId) async {
+//   DocumentReference reelRef =
+//       FirebaseFirestore.instance.collection('allReels').doc(reelId);
+
+//   // Check if the user has already liked the reel
+//   DocumentSnapshot reelSnapshot = await reelRef.get();
+//   Map<String, dynamic>? reelData = reelSnapshot.data() as Map<String, dynamic>;
+//   List<String>? likes = reelData['likes'];
+
+//   if (likes != null && likes.contains(userId)) {
+//     // If the user has liked the reel, unlike it
+//     await reelRef.update({
+//       'likeCount': FieldValue.increment(-1),
+//       'likes': FieldValue.arrayRemove([userId]),
+//     });
+//   } else {
+//     // If the user hasn't liked the reel, like it
+//     await reelRef.update({
+//       'likeCount': FieldValue.increment(1),
+//       'likes': FieldValue.arrayUnion([userId]),
+//     });
+//   }
+// }
+Future<bool> checkIfLiked(String reelId, String userId) async {
+  try {
+    DocumentSnapshot reelSnapshot = await FirebaseFirestore.instance
+        .collection('reelsMeta')
+        .doc(reelId)
+        .get();
+
+    if (reelSnapshot.exists) {
+      Map<String, dynamic>? reelData =
+          reelSnapshot.data() as Map<String, dynamic>?;
+
+      if (reelData != null) {
+        List<dynamic>? likes = reelData['likes'];
+        print(likes);
+        if (likes != null && likes.contains(userId)) {
+          return true;
+        }
+      }
+    }
+  } catch (e) {
+    print('Error checking like status: $e');
+  }
+  return false;
+}
+
+Future<void> toggleLike(String reelId, String userId) async {
+  try {
+    DocumentReference reelRef =
+        FirebaseFirestore.instance.collection('reelsMeta').doc(reelId);
+
+    DocumentSnapshot reelSnapshot = await reelRef.get();
+    Map<String, dynamic>? reelData =
+        reelSnapshot.data() as Map<String, dynamic>?;
+
+    if (reelData != null) {
+      List<dynamic>? likes = reelData['likes'];
+      //List<String>? likes = reelData['likes'];
+
+      if (likes != null && likes.contains(userId)) {
+        // If the user has liked the reel, unlike it
+        await reelRef.update({
+          'likeCount': FieldValue.increment(-1),
+          'likes': FieldValue.arrayRemove([userId]),
+        });
+      } else {
+        // If the user hasn't liked the reel, like it
+        await reelRef.update({
+          'likeCount': FieldValue.increment(1),
+          'likes': FieldValue.arrayUnion([userId]),
+        });
+      }
+    }
+  } catch (e) {
+    print('Error toggling like status: $e');
   }
 }
 
-Future<void> addComment(
-    String reelId, String userId, String commentText, String username) async {
+// Future<void> addComment(
+//     String reelId, String userId, String commentText, String username) async {
+//   CollectionReference commentRef = FirebaseFirestore.instance
+//       .collection('reelsMeta')
+//       .doc(reelId)
+//       .collection('comments');
+//   await commentRef.add({
+//     'userId': userId,
+//     'username': username,
+//     'commentText': commentText,
+//     'likeCount': 0,
+//     'timestamp': FieldValue.serverTimestamp(),
+//   });
+//   String commentId = commentRef.id;
+// }
+Future<void> addComment(String reelId, reelComment comment) async {
   CollectionReference commentRef = FirebaseFirestore.instance
       .collection('reelsMeta')
       .doc(reelId)
       .collection('comments');
-  await commentRef.add({
-    'userId': userId,
-    'username': username,
-    'commentText': commentText,
-    'likeCount': 0,
-    'timestamp': FieldValue.serverTimestamp(),
-  });
-  String commentId = commentRef.id;
+  await commentRef.add(comment.toMap());
 }
 
 Future<void> deleteComment(String reelId, String commentId) async {
@@ -153,17 +295,39 @@ Future<void> deleteComment(String reelId, String commentId) async {
   await commentRef.delete();
 }
 
-Future<List<Map<String, dynamic>>> fetchCommentsForReel(String reelId) async {
+// Future<List<Comment>> fetchCommentsForReel(String reelId) async {
+//   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+//       .collection('allReels')
+//       .doc(reelId)
+//       .collection('comments')
+//       .orderBy('timestamp', descending: true)
+//       .get();
+
+//   List<Comment> comments = [];
+//   for (var doc in querySnapshot.docs) {
+//     comments.add(doc.data() as Comment);
+//   }
+
+//   return comments;
+// }
+Future<List<reelComment>> fetchCommentsForReel(String reelId) async {
   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-      .collection('allReels')
+      .collection('reelsMeta')
       .doc(reelId)
       .collection('comments')
       .orderBy('timestamp', descending: true)
       .get();
 
-  List<Map<String, dynamic>> comments = [];
+  List<reelComment> comments = [];
   for (var doc in querySnapshot.docs) {
-    comments.add(doc.data() as Map<String, dynamic>);
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    reelComment comment = reelComment(
+      userId: data['userId'],
+      userName: data['username'],
+      commentText: data['commentText'],
+      timestamp: (data['timestamp'] as Timestamp).toDate(),
+    );
+    comments.add(comment);
   }
 
   return comments;
@@ -339,7 +503,7 @@ Future<void> captureVideoFromCamera(
                         ["the", "best", "reel22445555"],
                         username);
                     // Optionally, add a comment after uploading
-                    await addComment(reelId, userId, "HIIIIIIII44", username);
+                    //await addComment(reelId, userId, "HIIIIIIII44", username);
                     // Dispose of the controller to free up resources
                     controller.dispose();
                     // Close the dialog
@@ -374,6 +538,6 @@ Future<void> selectVideoFromGallery(String userId, String username) async {
     String reelId;
     reelId = await uploadReel(userId, pickedFile.path, "Testing 1",
         "I like this reel very much", ["First", "Real", "Reel"], username);
-    addComment(reelId, userId, "HIIIIIIII", username);
+    //addComment(reelId, userId, "HIIIIIIII", username);
   }
 }

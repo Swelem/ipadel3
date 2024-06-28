@@ -37,11 +37,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
   @override
+  void dispose() {
+    _fnameController.dispose();
+    _lnameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confpasswordController.dispose();
+    _mobileNumberController.dispose();
+    _birthdayController.dispose();
+    _nationalityController.dispose();
+    _usernameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
       appBar: AppBar(
-        leading: Container(),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppColors.thirdColor),
+          onPressed: () {
+            Get.back();
+          },
+        ),
         backgroundColor: AppColors.primaryColor,
         elevation: 0,
       ),

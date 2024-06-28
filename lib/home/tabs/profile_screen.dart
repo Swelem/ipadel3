@@ -3,6 +3,7 @@ import '/core/app_colors.dart';
 import '/auth/login_screen.dart';
 import 'package:get/get.dart';
 import '../../authService.dart';
+import '/home/tabs/home_reels_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final user; // Add user field
@@ -33,7 +34,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(15),
               child: Column(
                 children: [
-                  Image.asset("assets/images/profile_image.png", height: 150),
+                  //Image.asset("assets/images/profile_image.png", height: 150),
+                  Text(
+                    "CONTACT US:",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+
                   Row(
                     children: [
                       Expanded(

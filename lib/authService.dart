@@ -47,6 +47,10 @@ import 'package:ipadel3/userauth.dart';
 //     }
 //   }
 class AuthService {
+  Future<void> resetPassword(String email) async {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
+
   Future<String?> register(
       String email,
       String password,
