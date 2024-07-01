@@ -2,8 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:camera/camera.dart';
 import '/core/app_colors.dart';
 
 class CorrectionVideoPlayerScreen extends StatefulWidget {

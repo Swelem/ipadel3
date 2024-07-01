@@ -1,44 +1,11 @@
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
-
-// Future<void> summarizeVideo(String videoPath) async {
-//   var apiUrl = 'http://localhost:5000/summarize-video';
-//   var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
-//   request.files.add(await http.MultipartFile.fromPath('video', videoPath));
-
-//   var response = await request.send();
-//   if (response.statusCode == 200) {
-//     var jsonResponse = json.decode(await response.stream.bytesToString());
-//     print('Summary: ${jsonResponse['summary']}');
-//     // Update UI with the summary data
-//   } else {
-//     print('Request failed with status: ${response.statusCode}');
-//     // Handle error
-//   }
-// }
-
 import 'dart:io';
-import 'correct_screen.dart';
-import 'wrong_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'dart:io';
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/material.dart';
-import '/core/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
-import 'package:video_player/video_player.dart';
-import 'videoService.dart';
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 import 'package:get/get.dart';
 
 // void main() {

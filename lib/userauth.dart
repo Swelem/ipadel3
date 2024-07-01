@@ -49,18 +49,6 @@ class Userauth {
       required this.dob,
       required this.gender,
       required this.username});
-  // factory Userauth.fromJson(Map<String, dynamic> parsedJson) {
-  //   return Userauth(
-  //       email: parsedJson['email'] ?? '',
-  //       fName: parsedJson['firstName'] ?? '',
-  //       lName: parsedJson['lastName'] ?? '',
-  //       id: parsedJson['uid'] ?? parsedJson['uid'] ?? '',
-  //       number: parsedJson['number'] ?? '',
-  //       country: parsedJson['nationality'] ?? '',
-  //       dob: parsedJson['dob'] ?? '',
-  //       gender: parsedJson['gender'] ?? '');
-  //   //profilePictureURL: parsedJson['profilePictureURL'] ?? '');
-  // }
 
   factory Userauth.fromJson(Map<String, dynamic> parsedJson) {
     return Userauth(
@@ -74,14 +62,7 @@ class Userauth {
         gender: parsedJson['gender'] ?? '',
         username: parsedJson['username'] ?? '');
   }
-  // id = data['uid'],
-  //   fName = data['First Name'],
-  //   lName = data['Last Name'],
-  //   email = data['Email'],
-  //   number = data['Number'],
-  //   country = data['Country'],
-  //   dob = data['DOB'],
-  //   gender = data['Gender'];
+
   Map<String, dynamic> toJson() {
     return {
       'uid': id,

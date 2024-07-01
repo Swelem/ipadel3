@@ -3,7 +3,6 @@ import '/core/app_colors.dart';
 import '/auth/login_screen.dart';
 import 'package:get/get.dart';
 import '../../authService.dart';
-import '/home/tabs/home_reels_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final user; // Add user field

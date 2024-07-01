@@ -3,10 +3,6 @@ import '/core/app_colors.dart';
 import '/core/widgets/custom_text_field.dart';
 import '/auth/login_screen.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:iPadel/userauth.dart';
 import '../authService.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -24,16 +20,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _nationalityController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
-  String? _emailErrorText;
-  String? _textErrorText;
-  String? _numErrorText;
-  String? _passErrorText;
-  String? _fnameErrorText;
-  String? _lnameErrorText;
-  String? _usernameErrorText;
-  String? _gender;
+  // String? _emailErrorText;
+  // String? _textErrorText;
+  // String? _numErrorText;
+  // String? _passErrorText;
+  // String? _fnameErrorText;
+  // String? _lnameErrorText;
+  // String? _usernameErrorText;
+  // String? _gender;
   AuthService authInstance = AuthService();
-  String? _errorMessage;
+  // String? _errorMessage;
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
   bool isLoading = false;

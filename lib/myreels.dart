@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -219,9 +218,18 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   ),
                 )
               : _controller.value.isInitialized
-                  ? AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: VideoPlayer(_controller),
+                  // ? AspectRatio(
+                  //     aspectRatio: _controller.value.aspectRatio,
+                  //     child: VideoPlayer(_controller),
+                  //   )
+                  // : Center(child: CircularProgressIndicator()),
+                  ? FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _controller.value.size.width,
+                        height: _controller.value.size.height,
+                        child: VideoPlayer(_controller),
+                      ),
                     )
                   : Center(child: CircularProgressIndicator()),
           Positioned(
@@ -326,7 +334,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                       IconButton(
                         icon: Icon(Icons.file_upload, color: Colors.white),
                         onPressed: () {
-                          
                           Get.off(() => UploadReelsScreen(user: user));
                           // Handle send button press
                         },

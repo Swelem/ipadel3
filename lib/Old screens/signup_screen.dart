@@ -6,7 +6,7 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import 'package:firebase_database/firebase_database.dart';
 import 'package:iPadel/userauth.dart';
-import 'authService.dart';
+import '../authService.dart';
 
 class SignUpScreen extends StatefulWidget {
   @override

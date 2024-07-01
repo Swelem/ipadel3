@@ -1,13 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '/core/app_colors.dart';
-import '/reels/reels_screen.dart';
 import '/virtual_coach/virtual_coach_screen.dart';
 import 'package:get/get.dart';
 import 'package:iPadel/myreels.dart';
-import '../../Loginscreen.dart';
-import '../../profle.dart';
-import '../../reels.dart';
 
 class HomeReelsScreen extends StatelessWidget {
   final user;

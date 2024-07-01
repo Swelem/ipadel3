@@ -1,10 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:video_player/video_player.dart';
 import 'reelService.dart'; // Import your reels service
-import '/upload_reels/upload_reels_screen.dart';
-import 'package:get/get.dart';
 import 'comment.dart';
 import 'package:intl/intl.dart';
 

@@ -1,27 +1,15 @@
-//import 'dart:html';
 import 'dart:io';
-import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
-import 'package:iPadel/main.dart';
-import 'package:path/path.dart' as Path;
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart' as db;
 import 'authService.dart';
 import 'comment.dart';
 import 'package:camera/camera.dart'; // For accessing the device camera
 import 'package:image_picker/image_picker.dart'; // For selecting images and videos from the gallery
 import 'package:video_player/video_player.dart'; // For displaying video files
-//import 'package:flutter_ffmpeg/flutter_ffmpeg.dart'; // For executing FFmpeg commands
-import 'dart:io';
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
 
 // Upload reel video to Firebase Storage
 Future<String> uploadReel(
@@ -183,29 +171,6 @@ Future<int> fetchCommentCount(String reelId) async {
   return 0; // Default value if like count is not found or there's an error
 }
 
-// Future<void> toggleLikeReel(String reelId, String userId) async {
-//   DocumentReference reelRef =
-//       FirebaseFirestore.instance.collection('allReels').doc(reelId);
-
-//   // Check if the user has already liked the reel
-//   DocumentSnapshot reelSnapshot = await reelRef.get();
-//   Map<String, dynamic>? reelData = reelSnapshot.data() as Map<String, dynamic>;
-//   List<String>? likes = reelData['likes'];
-
-//   if (likes != null && likes.contains(userId)) {
-//     // If the user has liked the reel, unlike it
-//     await reelRef.update({
-//       'likeCount': FieldValue.increment(-1),
-//       'likes': FieldValue.arrayRemove([userId]),
-//     });
-//   } else {
-//     // If the user hasn't liked the reel, like it
-//     await reelRef.update({
-//       'likeCount': FieldValue.increment(1),
-//       'likes': FieldValue.arrayUnion([userId]),
-//     });
-//   }
-// }
 Future<bool> checkIfLiked(String reelId, String userId) async {
   try {
     DocumentSnapshot reelSnapshot = await FirebaseFirestore.instance
@@ -263,21 +228,6 @@ Future<void> toggleLike(String reelId, String userId) async {
   }
 }
 
-// Future<void> addComment(
-//     String reelId, String userId, String commentText, String username) async {
-//   CollectionReference commentRef = FirebaseFirestore.instance
-//       .collection('reelsMeta')
-//       .doc(reelId)
-//       .collection('comments');
-//   await commentRef.add({
-//     'userId': userId,
-//     'username': username,
-//     'commentText': commentText,
-//     'likeCount': 0,
-//     'timestamp': FieldValue.serverTimestamp(),
-//   });
-//   String commentId = commentRef.id;
-// }
 Future<void> addComment(String reelId, reelComment comment) async {
   CollectionReference commentRef = FirebaseFirestore.instance
       .collection('reelsMeta')
@@ -295,21 +245,6 @@ Future<void> deleteComment(String reelId, String commentId) async {
   await commentRef.delete();
 }
 
-// Future<List<Comment>> fetchCommentsForReel(String reelId) async {
-//   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-//       .collection('allReels')
-//       .doc(reelId)
-//       .collection('comments')
-//       .orderBy('timestamp', descending: true)
-//       .get();
-
-//   List<Comment> comments = [];
-//   for (var doc in querySnapshot.docs) {
-//     comments.add(doc.data() as Comment);
-//   }
-
-//   return comments;
-// }
 Future<List<reelComment>> fetchCommentsForReel(String reelId) async {
   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
       .collection('reelsMeta')
@@ -436,22 +371,6 @@ class PermissionRequestWidget extends StatelessWidget {
     );
   }
 }
-
-// // Function to capture video from camera
-// Future<void> captureVideoFromCamera(String userId) async {
-//   final User? user = FirebaseAuth.instance.currentUser;
-//   if (user == null) {
-//     // Handle the case where the user is not authenticated
-//     print("User is not authenticated.");
-//     return;
-//   }
-//   final pickedFile = await ImagePicker().pickVideo(source: ImageSource.camera);
-//   if (pickedFile != null) {
-//     String videoFilePath = pickedFile.path;
-//     await uploadReel(userId, "hi", videoFilePath, "the best reel22",
-//         "I like this reel very much22", ["the", "best", "reel22"]);
-//   }
-// }
 
 Future<void> captureVideoFromCamera(
     BuildContext context, String userId, String username) async {

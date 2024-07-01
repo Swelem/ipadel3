@@ -50,8 +50,8 @@ class _WrongScreenState extends State<WrongScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.file(File(
-      videoPath),
+    _controller = VideoPlayerController.file(
+      File(videoPath),
     )..setLooping(true);
     _initializeVideoPlayerFuture = _controller.initialize();
     _controller.play();
@@ -97,12 +97,12 @@ class _WrongScreenState extends State<WrongScreen> {
       //   backgroundColor: AppColors.primaryColor,
       //   elevation: 0,
       // ),
-            appBar: AppBar(
+      appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: 
-          //AppColors.thirdColor 
-          Colors.white
-          ),
+          icon: Icon(Icons.arrow_back,
+              color:
+                  //AppColors.thirdColor
+                  Colors.white),
           onPressed: () {
             Get.back();
           },
@@ -203,16 +203,6 @@ class _WrongScreenState extends State<WrongScreen> {
                                       aspectRatio:
                                           _controller.value.aspectRatio,
 
-                                      //aspectRatio,
-                                      //child: FittedBox(
-                                      // fit: BoxFit.cover,
-                                      // child: SizedBox(
-                                      //   width:
-                                      //       _controller.value.size?.width ??
-                                      //           0,
-                                      //   height: _controller
-                                      //           .value.size?.height ??
-                                      //       0,
                                       child: VideoPlayer(_controller),
                                       //),
                                     ),

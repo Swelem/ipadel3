@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
-import 'authService.dart';
+import '../authService.dart';
 import 'loginScreen.dart';
 
 // void main() {

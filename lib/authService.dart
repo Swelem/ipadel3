@@ -1,51 +1,8 @@
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
-import 'package:firebase_database/firebase_database.dart';
 import 'package:iPadel/userauth.dart';
 
-// class AuthService {
-//   Future<void> register(
-//       String email,
-//       String password,
-//       String fname,
-//       String lname,
-//       String dob,
-//       String number,
-//       String country,
-//       String gender,
-//       String username) async {
-//     try {
-//       UserCredential userCredential = await FirebaseAuth.instance
-//           .createUserWithEmailAndPassword(email: email, password: password);
-//       CollectionReference _usersCollectionReference =
-//           FirebaseFirestore.instance.collection("users");
-
-//       String? uid = userCredential.user?.uid;
-
-//       await _usersCollectionReference.doc(uid).set({
-//         'firstName': fname,
-//         'lastName': lname,
-//         'email': email,
-//         'dob': dob,
-//         'number': number,
-//         'nationality': country,
-//         'gender': gender,
-//         'uid': uid,
-//         'username': username
-//       });
-//       userCredential.user?.sendEmailVerification();
-//     } on FirebaseAuthException catch (e) {
-//       if (e.code == 'weak-password') {
-//         print('The password provided is too weak.');
-//       } else if (e.code == 'email-already-in-use') {
-//         print('The account already exists for that email.');
-//       }
-//     } catch (e) {
-//       print(e);
-//     }
-//   }
 class AuthService {
   Future<void> resetPassword(String email) async {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email);

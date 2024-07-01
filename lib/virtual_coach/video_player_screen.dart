@@ -2,21 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
-import 'dart:io';
 import '/core/app_colors.dart';
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/material.dart';
-import '/core/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
-import 'package:video_player/video_player.dart';
 import 'videoService.dart';
 import 'correct_screen.dart';
 import 'wrong_screen.dart';
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final XFile videoFile;
