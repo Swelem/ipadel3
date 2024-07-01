@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ipadel3/userauth.dart';
+import 'package:iPadel/userauth.dart';
 import '../authService.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -224,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   );
                                   // Registration failed, show error message
                                 }
-                              setState(() {
+                                setState(() {
                                   isLoading = false; // Stop loading
                                 });
                               }

@@ -4,7 +4,7 @@ import '/core/app_colors.dart';
 import '/reels/reels_screen.dart';
 import '/virtual_coach/virtual_coach_screen.dart';
 import 'package:get/get.dart';
-import 'package:ipadel3/myreels.dart';
+import 'package:iPadel/myreels.dart';
 import '../../Loginscreen.dart';
 import '../../profle.dart';
 import '../../reels.dart';

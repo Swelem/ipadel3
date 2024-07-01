@@ -4,7 +4,7 @@ import '/core/widgets/custom_text_field.dart';
 import '/auth/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:ipadel3/userauth.dart';
+import 'package:iPadel/userauth.dart';
 import '../authService.dart';
 
 class ForgotPassScreen extends StatefulWidget {
@@ -49,8 +49,6 @@ class _ForgotPassScreenState extends State<ForgotPassScreen> {
       isLoading = false; // Stop loading
     });
   }
-  
-  
 
   @override
   Widget build(BuildContext context) {

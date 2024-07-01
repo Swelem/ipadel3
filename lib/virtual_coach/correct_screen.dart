@@ -98,13 +98,12 @@ class _CorrectScreenState extends State<CorrectScreen> {
       //   backgroundColor: AppColors.primaryColor,
       //   elevation: 0,
       // ),
-            appBar: AppBar(
+      appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color:
-           //AppColors.thirdColor
-           Colors.white
-           
-           ),
+          icon: Icon(Icons.arrow_back,
+              color:
+                  //AppColors.thirdColor
+                  Colors.white),
           onPressed: () {
             Get.back();
           },
@@ -175,11 +174,11 @@ class _CorrectScreenState extends State<CorrectScreen> {
                       child: Column(
                         children: [
                           Image.asset(
-                            "assets/images/wrong_coach.png", // Replace with your image path
+                            "assets/images/correct_coach.png", // Replace with your image path
                             height: 100,
                           ),
                           const Text(
-                            "Oops!",
+                            "Well Done!",
                             style: TextStyle(
                               color: Colors.green,
                               fontSize: 25,

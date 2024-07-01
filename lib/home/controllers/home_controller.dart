@@ -1,7 +1,7 @@
 import '/home/tabs/home_reels_screen.dart';
 import '/home/tabs/profile_screen.dart';
 import 'package:get/get.dart';
-import 'package:ipadel3/virtual_coach/corrections_screen.dart';
+import 'package:iPadel/virtual_coach/corrections_screen.dart';
 
 class HomeController extends GetxController {
   final user;

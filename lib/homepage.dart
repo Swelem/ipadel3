@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ipadel3/myreels.dart';
+import 'package:iPadel/myreels.dart';
 import 'Loginscreen.dart';
 import 'profle.dart';
 import 'reels.dart';

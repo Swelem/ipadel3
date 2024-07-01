@@ -294,7 +294,7 @@ class _VirtualCoachScreenState extends State<VirtualCoachScreen>
       final firstCamera = cameras.first;
       _cameraController = CameraController(
         firstCamera,
-        ResolutionPreset.low,
+        ResolutionPreset.medium,
         enableAudio: false,
       );
 
